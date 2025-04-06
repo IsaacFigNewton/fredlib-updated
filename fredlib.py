@@ -517,30 +517,37 @@ class FredGraph:
 # Processing Functions
 # ----------------------------------------------------------------------------------------------------------------------
 def preprocessText(text):
-    nt = text.replace("-"," ")
-    nt = nt.replace("#"," ")
-    nt = nt.replace(chr(96),"'") #`->'
-    nt = nt.replace("'nt "," not ")
-    nt = nt.replace("'ve "," have ")
-    nt = nt.replace(" what's "," what is ")
-    nt = nt.replace("What's ","What is ")
-    nt = nt.replace(" where's "," where is ")
-    nt = nt.replace("Where's ","Where is ")
-    nt = nt.replace(" how's "," how is ")
-    nt = nt.replace("How's ","How is ")
-    nt = nt.replace(" he's "," he is ")
-    nt = nt.replace(" she's "," she is ")
-    nt = nt.replace(" it's "," it is ")
-    nt = nt.replace("He's ","He is ")
-    nt = nt.replace("She's ","She is ")
-    nt = nt.replace("It's ","It is ")
-    nt = nt.replace("'d "," had ")
-    nt = nt.replace("'ll "," will ")
-    nt = nt.replace("'m "," am ")
-    nt = nt.replace(" ma'am "," madam ")
-    nt = nt.replace(" o'clock "," of the clock ")
-    nt = nt.replace(" 're "," are ")
-    nt = nt.replace(" y'all "," you all ")
+    # Original text cleanup
+    nt = text.replace("-", " ").replace("#", " ").replace(chr(96), "'")
+
+    # Dictionary of replacements
+    replacements = {
+        "'nt ": " not ",
+        "'ve ": " have ",
+        " what's ": " what is ",
+        "What's ": "What is ",
+        " where's ": " where is ",
+        "Where's ": "Where is ",
+        " how's ": " how is ",
+        "How's ": "How is ",
+        " he's ": " he is ",
+        " she's ": " she is ",
+        " it's ": " it is ",
+        "He's ": "He is ",
+        "She's ": "She is ",
+        "It's ": "It is ",
+        "'d ": " had ",
+        "'ll ": " will ",
+        "'m ": " am ",
+        " ma'am ": " madam ",
+        " o'clock ": " of the clock ",
+        " 're ": " are ",
+        " y'all ": " you all "
+    }
+
+    # Apply replacements
+    for old, new in replacements.items():
+        nt = nt.replace(old, new)
 
     nt = nt.strip()
     if nt[len(nt)-1]!='.':
@@ -563,6 +570,11 @@ def openFredGraph(filename):
     rdf.parse(filename)
     return FredGraph(rdf)
 
+# def get_simplified_graph(g):
+#     labelled_graph = checkFredGraph(g)
+#
+#     return
+
 
 # Graph Functions
 # ----------------------------------------------------------------------------------------------------------------------
@@ -578,7 +590,7 @@ def checkFredFile(filename):
     return g
 
 def checkFredGraph(g):
-    output = []
+    output = dict()
 
     node_methods = [
         ("getNodes", g.getNodes),
@@ -590,20 +602,19 @@ def checkFredGraph(g):
         ("getQualityNodes", g.getQualityNodes)
     ]
     for header, func in node_methods:
-        output.append(header)
+        output[header] = list()
         for n in func():
-            output.append(str(n))
+            output[header].append(str(n))
 
-    
-    output.append("getInfoNodes")
+    output["getInfoNodes"] = list()
     ns = g.getInfoNodes()
     for n in ns:
-        output.append(f"{n} {ns[n].Type} {ns[n].FredType} {ns[n].ResourceType}")
+        output["getInfoNodes"].append(f"{n} {ns[n].Type} {ns[n].FredType} {ns[n].ResourceType}")
 
     # Get edge triples
-    output.append("getEdges")
+    output["getEdges"] = list()
     for (a, b, c) in g.getEdges():
-        output.append(f"{a} {b} {c}")
+        output["getEdges"].append(f"{a} {b} {c}")
 
     # Edge motifs
     motifs = [
@@ -616,54 +627,58 @@ def checkFredGraph(g):
         ("Negation", EdgeMotif.Negation),
         ("Property", EdgeMotif.Property),
     ]
+    output["getEdgeMotif"] = dict()
     for label, motif in motifs:
-        output.append(f"getEdgeMotif(EdgeMotif.{label})")
+        output["getEdgeMotif"][label] = list()
         for (a, b, c) in g.getEdgeMotif(motif):
-            output.append(f"{a} {b} {c}")
+            output["getEdgeMotif"][label].append(f"{a} {b} {c}")
 
     # Get info edges
-    output.append("getInfoEdges")
+    output["getInfoEdges"] = list()
     es = g.getInfoEdges()
     for e in es:
-        output.append(f"{e} {es[e].Type}")
+        output["getInfoEdges"].append(f"{e} {es[e].Type}")
 
+    # Get path motifs
     path_motifs = [
         ("Type", PathMotif.Type),
         ("SubClass", PathMotif.SubClass),
     ]
-
+    output["getPathMotif"] = dict()
     for label, motif in path_motifs:
-        output.append(f"getPathMotif(PathMotif.{label})")
+        output["getPathMotif"][label] = list()
         for (a, b) in g.getPathMotif(motif):
-            output.append(f"{a} {b}")
+            output["getPathMotif"][label].append(f"{a} {b}")
 
+    # Get cluster motifs
     cluster_motifs = [
         ("Identity", ClusterMotif.Identity),
         ("Equivalence", ClusterMotif.Equivalence),
         ("IdentityEquivalence", ClusterMotif.IdentityEquivalence),
     ]
-
+    output["getClusterMotif"] = dict()
     for label, motif in cluster_motifs:
-        output.append(f"getClusterMotif(ClusterMotif.{label})")
+        output["getClusterMotif"][label] = list()
         for cluster in g.getClusterMotif(motif):
-            output.append(str(cluster))
+            output["getClusterMotif"][label].append(str(cluster))
 
+    # Get N-ary motifs
     nary_motifs = [
         ("Event", NaryMotif.Event),
         ("Situation", NaryMotif.Situation),
         ("OtherEvent", NaryMotif.OtherEvent),
         ("Concept", NaryMotif.Concept),
     ]
-
+    output["getNaryMotif"] = dict()
     for label, motif in nary_motifs:
-        output.append(f"g.getNaryMotif(NaryMotif.{label})")
+        output["getNaryMotif"][label] = list()
         motif_occurrences = g.getNaryMotif(motif)
         for item in motif_occurrences:
             roles = motif_occurrences[item]
             role_str = " ".join(f"{r}: {roles[r]};" for r in roles)
-            output.append(f"{item} {{ {role_str} }}")
+            output["getNaryMotif"][label].append(f"{item} {{ {role_str} }}")
 
-    return "\n".join(output)
+    return output
 
 # Example usage
 # if __name__ == "__main__":

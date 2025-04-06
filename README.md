@@ -2,15 +2,11 @@
 FRED is a machine reader for the Semantic Web: it is able to parse natural language text in 48 different languages and transform it to linked data. It is implemented in Python and available as REST service and as a Python library suite (fredlib). The original website for FRED can be found [here](http://wit.istc.cnr.it/stlab-tools/fred/)
 This repo is just my updated, derivative version of it, intended for use with Python 3.12 clients.
 The majority of the code contained in this repo is not my own, but I wanted to make this version public for possible collaboration, as the [original](http://wit.istc.cnr.it/stlab-tools/fred/fredlib.py) is incompatible with Python 3+.
----
+**If you are the original creator of the fredlib code or the API spec sheet and would like something changed or removed, please contact me.**
 
 # FRED API Usage
 I've included the API documentation in this repo, but the original text can also be found [here](http://wit.istc.cnr.it/stlab-tools/fred/swagger.json)
----
 
-# Other Notes
-If you are the original creator of the fredlib code or the API spec sheet and would like something changed or removed, please contact me.
----
 
 # References
 "Sentilo: Frame-Based Sentiment Analysis", Diego Reforgiato Recupero, Valentina Presutti, Sergio Consoli, Aldo Gangemi, Andrea Giovanni Nuzzolese, Cognitive Computation, 2014, Springer Science+Business Media New York 2014. PDF BibTex

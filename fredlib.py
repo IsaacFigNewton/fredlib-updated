@@ -84,7 +84,7 @@ class FredGraph:
         self.rdf = rdf
 
     def getNodes(self):
-        nodes = set()
+        nodes = list()
         for a, b, c in self.rdf:
             nodes.add(a.strip())
             nodes.add(c.strip())
@@ -97,7 +97,7 @@ class FredGraph:
                 "?i a ?t1 . " \
                 "?t1 (owl:equivalentClass | ^owl:equivalentClass | rdfs:sameAs | ^rdfs:sameAs | rdfs:subClassOf)* ?t }"
 
-        nodes = set()
+        nodes = list()
         res = self.rdf.query(query)
         for el in res:
             nodes.add(el[0].strip())
@@ -114,7 +114,7 @@ class FredGraph:
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " \
                 "SELECT ?e WHERE { ?e a ?t . ?t rdfs:subClassOf* dul:Event }"
 
-        nodes = set()
+        nodes = list()
         res = self.rdf.query(query)
         for el in res:
             nodes.add(el[0].strip())
@@ -127,7 +127,7 @@ class FredGraph:
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " \
                 "SELECT ?e WHERE { ?e a ?t . ?t rdfs:subClassOf* boxing:Situation }"
 
-        nodes = set()
+        nodes = list()
         res = self.rdf.query(query)
         for el in res:
             nodes.add(el[0].strip())
@@ -140,7 +140,7 @@ class FredGraph:
         qualities = self.getQualityNodes()
         situation = self.getSituationNodes()
 
-        ne = set()
+        ne = list()
         for n in nodes:
             if n not in classes and n not in qualities and n not in events and n not in situation:
                 suffix = n[n.find("_", -1):]
@@ -155,7 +155,7 @@ class FredGraph:
         qualities = self.getQualityNodes()
         situation = self.getSituationNodes()
 
-        ne = set()
+        ne = list()
         for n in nodes:
             if n not in classes and n not in qualities and n not in events and n not in situation:
                 suffix = n[n.find("_", -1):]
@@ -166,7 +166,7 @@ class FredGraph:
     def getQualityNodes(self):
         query = "PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> " \
                 "SELECT ?q WHERE { ?i dul:hasQuality ?q }"
-        nodes = set()
+        nodes = list()
         res = self.rdf.query(query)
         for el in res:
             nodes.add(el[0].strip())

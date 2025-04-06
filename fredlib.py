@@ -86,8 +86,8 @@ class FredGraph:
     def getNodes(self):
         nodes = list()
         for a, b, c in self.rdf:
-            nodes.add(a.strip())
-            nodes.add(c.strip())
+            nodes.append(a.strip())
+            nodes.append(c.strip())
         return nodes
 
     def getClassNodes(self):
@@ -100,12 +100,13 @@ class FredGraph:
         nodes = list()
         res = self.rdf.query(query)
         for el in res:
-            nodes.add(el[0].strip())
+            nodes.append(el[0].strip())
         return nodes
 
     def getInstanceNodes(self):
-        nodes = self.getNodes()
-        return nodes.difference(self.getClassNodes())
+        nodes = set(self.getNodes())\
+            .difference(set(self.getClassNodes()))
+        return list(nodes)
 
     def getEventNodes(self):
         query = "PREFIX fred: <http://www.ontologydesignpatterns.org/ont/fred/domain.owl#> " \
@@ -117,7 +118,7 @@ class FredGraph:
         nodes = list()
         res = self.rdf.query(query)
         for el in res:
-            nodes.add(el[0].strip())
+            nodes.append(el[0].strip())
         return nodes
 
     def getSituationNodes(self):
@@ -130,7 +131,7 @@ class FredGraph:
         nodes = list()
         res = self.rdf.query(query)
         for el in res:
-            nodes.add(el[0].strip())
+            nodes.append(el[0].strip())
         return nodes
 
     def getNamedEntityNodes(self):
@@ -145,7 +146,7 @@ class FredGraph:
             if n not in classes and n not in qualities and n not in events and n not in situation:
                 suffix = n[n.find("_", -1):]
                 if suffix.isdigit() == False:
-                    ne.add(n)
+                    ne.append(n)
         return ne
 
     def getSkolemizedEntityNodes(self):
@@ -160,7 +161,7 @@ class FredGraph:
             if n not in classes and n not in qualities and n not in events and n not in situation:
                 suffix = n[n.find("_", -1):]
                 if suffix.isdigit() == True:
-                    ne.add(n)
+                    ne.append(n)
         return ne
 
     def getQualityNodes(self):
@@ -169,7 +170,7 @@ class FredGraph:
         nodes = list()
         res = self.rdf.query(query)
         for el in res:
-            nodes.add(el[0].strip())
+            nodes.append(el[0].strip())
         return nodes
 
     def getConceptNodes(self):

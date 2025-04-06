@@ -11,6 +11,9 @@ I've included the API documentation in this repo, but the original text can also
 
 # References
 "Sentilo: Frame-Based Sentiment Analysis", Diego Reforgiato Recupero, Valentina Presutti, Sergio Consoli, Aldo Gangemi, Andrea Giovanni Nuzzolese, Cognitive Computation, 2014, Springer Science+Business Media New York 2014. PDF BibTex
+
 "Frame-based detection of opinion holders and topics: a model and a tool", Aldo Gangemi, Valentina Presutti, Diego Reforgiato, Published in IEEE Computational Intelligence Magazine IEEE special issue on Computational Intelligence for Natural Language Processing (CINLP), Volume 9, Issue 1, pages 20-30, February 2014. PDF BibTex
+
 "Automatic typing of DBpedia entities", Aldo Gangemi, Andrea Giovanni Nuzzolese, Valentina Presutti, Francesco Draicchio, Alberto Musetti, and Paolo Ciancarini, ISWC 2012. PDF BibTex
+
 "Uncovering the semantics of Wikipedia pagelinks", Valentina Presutti, Sergio Consoli, Andrea G. Nuzzolese, Diego Reforgiato Recupero, Aldo Gangemi, Ines Bannour, Haifa Zargayouna, Proceedings of the 19th International Conference on Knowledge Engineering and Knowledge Management (EKAW 2014), volume 8876 of Lecture Notes in Computer Science, pages 413-428, Springer-Verlag, New York. PDF BibTex

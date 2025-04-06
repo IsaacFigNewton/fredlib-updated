@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import rdflib
 from flufl.enum import Enum
 from rdflib import plugin
@@ -581,12 +582,12 @@ def openFredGraph(filename):
 def checkFredSentence(sentence, key, graph):
     g = getFredGraph(preprocessText(sentence), key, graph)
     #g = openFredGraph(graph)
-    print(checkFredGraph(g))
+    print(json.dumps(checkFredGraph(g), indent=4))
     return g
 
 def checkFredFile(filename):
     g = openFredGraph(filename)
-    print(checkFredGraph(g))
+    print(json.dumps(checkFredGraph(g), indent=4))
     return g
 
 def checkFredGraph(g):
@@ -602,19 +603,19 @@ def checkFredGraph(g):
         ("getQualityNodes", g.getQualityNodes)
     ]
     for header, func in node_methods:
-        output[header] = list()
-        for n in func():
-            output[header].append(str(n))
+        output[header] = func()
 
-    output["getInfoNodes"] = list()
-    ns = g.getInfoNodes()
-    for n in ns:
-        output["getInfoNodes"].append(f"{n} {ns[n].Type} {ns[n].FredType} {ns[n].ResourceType}")
+    output["getInfoNodes"] = dict()
+    infoNodes = g.getInfoNodes()
+    for n in infoNodes:
+        output["getInfoNodes"][n] = {
+            "type": infoNodes[n].Type,
+            "FredType": infoNodes[n].FredType,
+            "ResourceType": infoNodes[n].ResourceType
+        }
 
     # Get edge triples
-    output["getEdges"] = list()
-    for (a, b, c) in g.getEdges():
-        output["getEdges"].append(f"{a} {b} {c}")
+    output["getEdges"] = g.getEdges()
 
     # Edge motifs
     motifs = [
@@ -629,15 +630,11 @@ def checkFredGraph(g):
     ]
     output["getEdgeMotif"] = dict()
     for label, motif in motifs:
-        output["getEdgeMotif"][label] = list()
-        for (a, b, c) in g.getEdgeMotif(motif):
-            output["getEdgeMotif"][label].append(f"{a} {b} {c}")
+        output["getEdgeMotif"][label] = g.getEdgeMotif(motif)
 
     # Get info edges
-    output["getInfoEdges"] = list()
-    es = g.getInfoEdges()
-    for e in es:
-        output["getInfoEdges"].append(f"{e} {es[e].Type}")
+    info_edges = g.getInfoEdges()
+    output["getInfoEdges"] = {e: info_edges[e].Type for e in info_edges}
 
     # Get path motifs
     path_motifs = [
@@ -646,9 +643,7 @@ def checkFredGraph(g):
     ]
     output["getPathMotif"] = dict()
     for label, motif in path_motifs:
-        output["getPathMotif"][label] = list()
-        for (a, b) in g.getPathMotif(motif):
-            output["getPathMotif"][label].append(f"{a} {b}")
+        output["getPathMotif"][label] = g.getPathMotif(motif)
 
     # Get cluster motifs
     cluster_motifs = [
@@ -671,12 +666,7 @@ def checkFredGraph(g):
     ]
     output["getNaryMotif"] = dict()
     for label, motif in nary_motifs:
-        output["getNaryMotif"][label] = list()
-        motif_occurrences = g.getNaryMotif(motif)
-        for item in motif_occurrences:
-            roles = motif_occurrences[item]
-            role_str = " ".join(f"{r}: {roles[r]};" for r in roles)
-            output["getNaryMotif"][label].append(f"{item} {{ {role_str} }}")
+        output["getNaryMotif"][label] = g.getNaryMotif(motif)
 
     return output
 

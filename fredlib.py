@@ -582,12 +582,16 @@ def openFredGraph(filename):
 def checkFredSentence(sentence, key, graph):
     g = getFredGraph(preprocessText(sentence), key, graph)
     #g = openFredGraph(graph)
-    print(json.dumps(checkFredGraph(g), indent=4))
+    print(json.dumps(checkFredGraph(g),
+                     indent=4,
+                     default=str))
     return g
 
 def checkFredFile(filename):
     g = openFredGraph(filename)
-    print(json.dumps(checkFredGraph(g), indent=4))
+    print(json.dumps(checkFredGraph(g),
+                     indent=4,
+                     default=str))
     return g
 
 def checkFredGraph(g):

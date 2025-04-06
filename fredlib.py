@@ -569,12 +569,12 @@ def openFredGraph(filename):
 def checkFredSentence(sentence, key, graph):
     g = getFredGraph(preprocessText(sentence), key, graph)
     #g = openFredGraph(graph)
-    checkFredGraph(g)
+    print(checkFredGraph(g))
     return g
 
 def checkFredFile(filename):
     g = openFredGraph(filename)
-    checkFredGraph(g)
+    print(checkFredGraph(g))
     return g
 
 def checkFredGraph(g):

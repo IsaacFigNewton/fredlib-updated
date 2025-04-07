@@ -514,8 +514,10 @@ class FredGraph:
 
         return motifocc
 
-    def getCompactGraph(self):
-        pass
+    def __str__(self):
+        return json.dumps(checkFredGraph(g),
+                   indent=4,
+                   default=str)
 
 
 # Processing Functions
@@ -577,21 +579,6 @@ def openFredGraph(filename):
 
 # Graph Functions
 # ----------------------------------------------------------------------------------------------------------------------
-def checkFredSentence(sentence, key, graph):
-    g = getFredGraph(preprocessText(sentence), key, graph)
-    #g = openFredGraph(graph)
-    print(json.dumps(keys_to_str(checkFredGraph(g)),
-                     indent=4,
-                     default=str))
-    return g
-
-def checkFredFile(filename):
-    g = openFredGraph(filename)
-    print(json.dumps(keys_to_str(checkFredGraph(g)),
-                     indent=4,
-                     default=str))
-    return g
-
 def keys_to_str(obj):
     if isinstance(obj, dict):
         return {str(k): keys_to_str(v) for k, v in obj.items()}
@@ -683,7 +670,7 @@ def checkFredGraph(g):
     for label, motif in nary_motifs:
         output["getNaryMotif"][label] = g.getNaryMotif(motif)
 
-    return output
+    return keys_to_str(output)
 
 
 # Visualization Functions

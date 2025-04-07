@@ -613,7 +613,7 @@ def checkFredGraph(g):
     output["getInfoNodes"] = dict()
     infoNodes = g.getInfoNodes()
     for n in infoNodes:
-        output["getInfoNodes"][n] = {
+        output["getInfoNodes"][str(n)] = {
             "type": infoNodes[n].Type,
             "FredType": infoNodes[n].FredType,
             "ResourceType": infoNodes[n].ResourceType
@@ -638,8 +638,13 @@ def checkFredGraph(g):
         output["getEdgeMotif"][label] = g.getEdgeMotif(motif)
 
     # Get info edges
+    output["getInfoEdges"] = dict()
     info_edges = g.getInfoEdges()
-    output["getInfoEdges"] = {e: info_edges[e].Type for e in info_edges}
+    for e in info_edges:
+        edge_type = info_edges[e].Type
+        if edge_type not in output["getInfoEdges"].keys():
+            output["getInfoEdges"][edge_type] = list()
+        output["getInfoEdges"][edge_type].append(e)
 
     # Get path motifs
     path_motifs = [

@@ -12,6 +12,8 @@ __author__ = 'Misael Mongiovi, Andrea Giovanni Nuzzolese'
 plugin.register('application/rdf+xml', Serializer, 'rdflib.plugins.serializers.rdfxml', 'XMLSerializer')
 plugin.register('xml', Serializer, 'rdflib.plugins.serializers.rdfxml', 'XMLSerializer')
 
+valid_json_types = {str, int, float, bool, None}
+
 class FredType(Enum):
     Situation = 1
     Event = 2
@@ -608,7 +610,7 @@ def checkFredGraph(g):
         ("getQualityNodes", g.getQualityNodes)
     ]
     for header, func in node_methods:
-        output[header] = func()
+        output[header] = list(func())
 
     output["getInfoNodes"] = dict()
     infoNodes = g.getInfoNodes()
@@ -641,7 +643,7 @@ def checkFredGraph(g):
     output["getInfoEdges"] = dict()
     info_edges = g.getInfoEdges()
     for e in info_edges:
-        edge_type = info_edges[e].Type
+        edge_type = str(info_edges[e].Type)
         if edge_type not in output["getInfoEdges"].keys():
             output["getInfoEdges"][edge_type] = list()
         output["getInfoEdges"][edge_type].append(e)

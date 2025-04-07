@@ -574,11 +574,6 @@ def openFredGraph(filename):
     rdf.parse(filename)
     return FredGraph(rdf)
 
-# def get_simplified_graph(g):
-#     labelled_graph = checkFredGraph(g)
-#
-#     return
-
 
 # Graph Functions
 # ----------------------------------------------------------------------------------------------------------------------
@@ -689,6 +684,44 @@ def checkFredGraph(g):
         output["getNaryMotif"][label] = g.getNaryMotif(motif)
 
     return output
+
+
+# Visualization Functions
+# ----------------------------------------------------------------------------------------------------------------------
+import networkx as nx
+
+def clean_uri(uri):
+    uri_str = str(uri)
+
+    if "#" in uri_str:
+        split_uri = uri_str.split("#")
+        cleaned_label = split_uri[-1]
+        uri_str = "#".join(split_uri[:-1])
+    else:
+        split_uri = uri_str.split("/")
+        cleaned_label = split_uri[-1]
+        uri_str = "#".join(split_uri[:-1])
+
+    split_uri = uri_str.split("/")
+    cleaned_label = f"{split_uri[-1]}: {cleaned_label}"
+
+    return cleaned_label.split(".")[-1]
+
+def get_simplified_nx_graph(g):
+    simplified_g = [(clean_uri(triple[0]),
+                     clean_uri(triple[2]),
+                     clean_uri(triple[1]))
+                    for triple in g]
+
+    for triple in simplified_g:
+        print(triple)
+
+    G = nx.DiGraph()
+
+    for source, target, relation in simplified_g:
+        G.add_edge(source, target, labels=relation)
+
+    return G
 
 # Example usage
 # if __name__ == "__main__":

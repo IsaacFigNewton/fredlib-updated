@@ -723,6 +723,54 @@ def get_simplified_nx_graph(g):
 
     return G
 
+import math
+import matplotlib.pyplot as plt
+
+def plot_graph(G, scaling=50, edge_width=1, k=2):
+    # Calculate figure size based on the number of nodes
+    num_nodes = len(G.nodes)
+    num_edges = len(G.edges)
+    graph_size = (num_nodes) + (2 * num_edges)
+
+    figsize = graph_size * scaling / 300
+    font_size = 2 + math.sqrt(scaling) / 5
+    # Calculate node sizes based on the length of the token text
+    node_sizes = [scaling * int(math.log2(len(node))) for node in G.nodes()]
+
+    # Position nodes using the spring layout
+    pos = nx.spring_layout(G, seed=42, k=k / num_nodes)
+    plt.figure(figsize=(figsize, figsize), dpi=300)
+
+    # Draw nodes with sizes proportional to the length of their text
+    nx.draw_networkx_nodes(G, pos, node_size=node_sizes)
+    # Draw node labels
+    nx.draw_networkx_labels(G, pos, font_size=font_size, font_family="sans-serif")
+
+
+    # Draw edges with widths based on edge weights
+    nx.draw_networkx_edges(G,
+                           pos,
+                           width=edge_width,
+                           arrows=True,
+                           arrowstyle='-|>',
+                           connectionstyle="arc3,rad=0.2")
+    # # Draw edge labels
+    edge_labels = nx.get_edge_attributes(G, "labels")
+    nx.draw_networkx_edge_labels(G,
+                                  pos,
+                                  edge_labels=edge_labels,
+                                  font_size=font_size,
+                                  label_pos=0.5,
+                                  rotate=False)
+
+    # Customize and show plot
+    ax = plt.gca()
+    ax.margins(0.08)
+    plt.axis("off")
+    plt.tight_layout()
+
+    plt.show()
+
 # Example usage
 # if __name__ == "__main__":
 #     g = checkFredSentence('The radio said that Pippo went to France', sys.argv[1],'pippo.rdf')

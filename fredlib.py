@@ -85,6 +85,11 @@ class FredGraph:
     def __init__(self,rdf):
         self.rdf = rdf
 
+    def __str__(self):
+        return json.dumps(self.checkFredGraph(),
+                   indent=4,
+                   default=str)
+
     def getNodes(self):
         nodes = list()
         for a, b, c in self.rdf:
@@ -514,10 +519,101 @@ class FredGraph:
 
         return motifocc
 
-    def __str__(self):
-        return json.dumps(checkFredGraph(g),
-                   indent=4,
-                   default=str)
+
+    # Structure Validation
+    # ------------------------------------------------------------------------------------------------------------------
+    def keys_to_str(self, obj):
+        if isinstance(obj, dict):
+            return {str(k): self.keys_to_str(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self.keys_to_str(i) for i in obj]
+        else:
+            return obj
+
+    def checkFredGraph(self):
+        output = dict()
+
+        node_methods = [
+            ("getNodes", g.getNodes),
+            ("getClassNodes", g.getClassNodes),
+            ("getInstanceNodes", g.getInstanceNodes),
+            ("getEventNodes", g.getEventNodes),
+            ("getSituationNodes", g.getSituationNodes),
+            ("getNamedEntityNodes", g.getNamedEntityNodes),
+            ("getQualityNodes", g.getQualityNodes)
+        ]
+        for header, func in node_methods:
+            output[header] = list(func())
+
+        output["getInfoNodes"] = dict()
+        infoNodes = g.getInfoNodes()
+        for n in infoNodes:
+            output["getInfoNodes"][str(n)] = {
+                "type": infoNodes[n].Type,
+                "FredType": infoNodes[n].FredType,
+                "ResourceType": infoNodes[n].ResourceType
+            }
+
+        # Get edge triples
+        output["getEdges"] = g.getEdges()
+
+        # Edge motifs
+        motifs = [
+            ("Role", EdgeMotif.Role),
+            ("Identity", EdgeMotif.Identity),
+            ("Type", EdgeMotif.Type),
+            ("SubClass", EdgeMotif.SubClass),
+            ("Equivalence", EdgeMotif.Equivalence),
+            ("Modality", EdgeMotif.Modality),
+            ("Negation", EdgeMotif.Negation),
+            ("Property", EdgeMotif.Property),
+        ]
+        output["getEdgeMotif"] = dict()
+        for label, motif in motifs:
+            output["getEdgeMotif"][label] = g.getEdgeMotif(motif)
+
+        # Get info edges
+        output["getInfoEdges"] = dict()
+        info_edges = g.getInfoEdges()
+        for e in info_edges:
+            edge_type = str(info_edges[e].Type)
+            if edge_type not in output["getInfoEdges"].keys():
+                output["getInfoEdges"][edge_type] = list()
+            output["getInfoEdges"][edge_type].append(e)
+
+        # Get path motifs
+        path_motifs = [
+            ("Type", PathMotif.Type),
+            ("SubClass", PathMotif.SubClass),
+        ]
+        output["getPathMotif"] = dict()
+        for label, motif in path_motifs:
+            output["getPathMotif"][label] = g.getPathMotif(motif)
+
+        # Get cluster motifs
+        cluster_motifs = [
+            ("Identity", ClusterMotif.Identity),
+            ("Equivalence", ClusterMotif.Equivalence),
+            ("IdentityEquivalence", ClusterMotif.IdentityEquivalence),
+        ]
+        output["getClusterMotif"] = dict()
+        for label, motif in cluster_motifs:
+            output["getClusterMotif"][label] = list()
+            for cluster in g.getClusterMotif(motif):
+                output["getClusterMotif"][label].append(str(cluster))
+
+        # Get N-ary motifs
+        nary_motifs = [
+            ("Event", NaryMotif.Event),
+            ("Situation", NaryMotif.Situation),
+            ("OtherEvent", NaryMotif.OtherEvent),
+            ("Concept", NaryMotif.Concept),
+        ]
+        output["getNaryMotif"] = dict()
+        for label, motif in nary_motifs:
+            output["getNaryMotif"][label] = g.getNaryMotif(motif)
+
+        return self.keys_to_str(output)
 
 
 # Processing Functions
@@ -575,102 +671,6 @@ def openFredGraph(filename):
     rdf = rdflib.Graph()
     rdf.parse(filename)
     return FredGraph(rdf)
-
-
-# Graph Functions
-# ----------------------------------------------------------------------------------------------------------------------
-def keys_to_str(obj):
-    if isinstance(obj, dict):
-        return {str(k): keys_to_str(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [keys_to_str(i) for i in obj]
-    else:
-        return obj
-
-def checkFredGraph(g):
-    output = dict()
-
-    node_methods = [
-        ("getNodes", g.getNodes),
-        ("getClassNodes", g.getClassNodes),
-        ("getInstanceNodes", g.getInstanceNodes),
-        ("getEventNodes", g.getEventNodes),
-        ("getSituationNodes", g.getSituationNodes),
-        ("getNamedEntityNodes", g.getNamedEntityNodes),
-        ("getQualityNodes", g.getQualityNodes)
-    ]
-    for header, func in node_methods:
-        output[header] = list(func())
-
-    output["getInfoNodes"] = dict()
-    infoNodes = g.getInfoNodes()
-    for n in infoNodes:
-        output["getInfoNodes"][str(n)] = {
-            "type": infoNodes[n].Type,
-            "FredType": infoNodes[n].FredType,
-            "ResourceType": infoNodes[n].ResourceType
-        }
-
-    # Get edge triples
-    output["getEdges"] = g.getEdges()
-
-    # Edge motifs
-    motifs = [
-        ("Role", EdgeMotif.Role),
-        ("Identity", EdgeMotif.Identity),
-        ("Type", EdgeMotif.Type),
-        ("SubClass", EdgeMotif.SubClass),
-        ("Equivalence", EdgeMotif.Equivalence),
-        ("Modality", EdgeMotif.Modality),
-        ("Negation", EdgeMotif.Negation),
-        ("Property", EdgeMotif.Property),
-    ]
-    output["getEdgeMotif"] = dict()
-    for label, motif in motifs:
-        output["getEdgeMotif"][label] = g.getEdgeMotif(motif)
-
-    # Get info edges
-    output["getInfoEdges"] = dict()
-    info_edges = g.getInfoEdges()
-    for e in info_edges:
-        edge_type = str(info_edges[e].Type)
-        if edge_type not in output["getInfoEdges"].keys():
-            output["getInfoEdges"][edge_type] = list()
-        output["getInfoEdges"][edge_type].append(e)
-
-    # Get path motifs
-    path_motifs = [
-        ("Type", PathMotif.Type),
-        ("SubClass", PathMotif.SubClass),
-    ]
-    output["getPathMotif"] = dict()
-    for label, motif in path_motifs:
-        output["getPathMotif"][label] = g.getPathMotif(motif)
-
-    # Get cluster motifs
-    cluster_motifs = [
-        ("Identity", ClusterMotif.Identity),
-        ("Equivalence", ClusterMotif.Equivalence),
-        ("IdentityEquivalence", ClusterMotif.IdentityEquivalence),
-    ]
-    output["getClusterMotif"] = dict()
-    for label, motif in cluster_motifs:
-        output["getClusterMotif"][label] = list()
-        for cluster in g.getClusterMotif(motif):
-            output["getClusterMotif"][label].append(str(cluster))
-
-    # Get N-ary motifs
-    nary_motifs = [
-        ("Event", NaryMotif.Event),
-        ("Situation", NaryMotif.Situation),
-        ("OtherEvent", NaryMotif.OtherEvent),
-        ("Concept", NaryMotif.Concept),
-    ]
-    output["getNaryMotif"] = dict()
-    for label, motif in nary_motifs:
-        output["getNaryMotif"][label] = g.getNaryMotif(motif)
-
-    return keys_to_str(output)
 
 
 # Visualization Functions

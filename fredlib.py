@@ -534,19 +534,19 @@ class FredGraph:
         output = dict()
 
         node_methods = [
-            ("getNodes", g.getNodes),
-            ("getClassNodes", g.getClassNodes),
-            ("getInstanceNodes", g.getInstanceNodes),
-            ("getEventNodes", g.getEventNodes),
-            ("getSituationNodes", g.getSituationNodes),
-            ("getNamedEntityNodes", g.getNamedEntityNodes),
-            ("getQualityNodes", g.getQualityNodes)
+            ("getNodes", self.getNodes),
+            ("getClassNodes", self.getClassNodes),
+            ("getInstanceNodes", self.getInstanceNodes),
+            ("getEventNodes", self.getEventNodes),
+            ("getSituationNodes", self.getSituationNodes),
+            ("getNamedEntityNodes", self.getNamedEntityNodes),
+            ("getQualityNodes", self.getQualityNodes)
         ]
         for header, func in node_methods:
             output[header] = list(func())
 
         output["getInfoNodes"] = dict()
-        infoNodes = g.getInfoNodes()
+        infoNodes = self.getInfoNodes()
         for n in infoNodes:
             output["getInfoNodes"][str(n)] = {
                 "type": infoNodes[n].Type,
@@ -555,7 +555,7 @@ class FredGraph:
             }
 
         # Get edge triples
-        output["getEdges"] = g.getEdges()
+        output["getEdges"] = self.getEdges()
 
         # Edge motifs
         motifs = [
@@ -570,11 +570,11 @@ class FredGraph:
         ]
         output["getEdgeMotif"] = dict()
         for label, motif in motifs:
-            output["getEdgeMotif"][label] = g.getEdgeMotif(motif)
+            output["getEdgeMotif"][label] = self.getEdgeMotif(motif)
 
         # Get info edges
         output["getInfoEdges"] = dict()
-        info_edges = g.getInfoEdges()
+        info_edges = self.getInfoEdges()
         for e in info_edges:
             edge_type = str(info_edges[e].Type)
             if edge_type not in output["getInfoEdges"].keys():
@@ -588,7 +588,7 @@ class FredGraph:
         ]
         output["getPathMotif"] = dict()
         for label, motif in path_motifs:
-            output["getPathMotif"][label] = g.getPathMotif(motif)
+            output["getPathMotif"][label] = self.getPathMotif(motif)
 
         # Get cluster motifs
         cluster_motifs = [
@@ -599,7 +599,7 @@ class FredGraph:
         output["getClusterMotif"] = dict()
         for label, motif in cluster_motifs:
             output["getClusterMotif"][label] = list()
-            for cluster in g.getClusterMotif(motif):
+            for cluster in self.getClusterMotif(motif):
                 output["getClusterMotif"][label].append(str(cluster))
 
         # Get N-ary motifs
@@ -611,7 +611,7 @@ class FredGraph:
         ]
         output["getNaryMotif"] = dict()
         for label, motif in nary_motifs:
-            output["getNaryMotif"][label] = g.getNaryMotif(motif)
+            output["getNaryMotif"][label] = self.getNaryMotif(motif)
 
         return self.keys_to_str(output)
 

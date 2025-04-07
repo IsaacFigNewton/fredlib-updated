@@ -585,17 +585,25 @@ def openFredGraph(filename):
 def checkFredSentence(sentence, key, graph):
     g = getFredGraph(preprocessText(sentence), key, graph)
     #g = openFredGraph(graph)
-    print(json.dumps(checkFredGraph(g),
+    print(json.dumps(keys_to_str(checkFredGraph(g)),
                      indent=4,
                      default=str))
     return g
 
 def checkFredFile(filename):
     g = openFredGraph(filename)
-    print(json.dumps(checkFredGraph(g),
+    print(json.dumps(keys_to_str(checkFredGraph(g)),
                      indent=4,
                      default=str))
     return g
+
+def keys_to_str(obj):
+    if isinstance(obj, dict):
+        return {str(k): keys_to_str(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [keys_to_str(i) for i in obj]
+    else:
+        return obj
 
 def checkFredGraph(g):
     output = dict()

@@ -579,7 +579,7 @@ class FredGraph:
         ]
         output["getEdgeMotif"] = dict()
         for label, motif in motifs:
-            output["getEdgeMotif"][label] = [[clean(m), clean(n)] for m, n in self.getEdgeMotif(motif)]
+            output["getEdgeMotif"][label] = [clean_tuple(e) for e in self.getEdgeMotif(motif)]
 
         # Get info edges
         output["getInfoEdges"] = dict()

@@ -537,6 +537,9 @@ class FredGraph:
             return clean_uri(uri) if simple else uri
 
         def clean_tuple(t:tuple):
+            if len(t) != 3:
+                print(f"Sorry, tuple was only {len(t)} entries long")
+
             return [[clean(subj), clean(pred), clean(obj)] for subj, pred, obj in t]
 
         node_methods = [

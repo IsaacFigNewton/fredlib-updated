@@ -540,7 +540,7 @@ class FredGraph:
             if len(t) != 3:
                 raise ValueError(f"Error: expecting tuple of length 3, tuple {t} was only {len(t)} entries long")
 
-            return [[clean(subj), clean(pred), clean(obj)] for subj, pred, obj in t]
+            return [clean(t[0]), clean(t[1]), clean(t[2])]
 
         node_methods = [
             ("getNodes", self.getNodes),

@@ -586,7 +586,8 @@ class FredGraph:
         info_edges = self.getInfoEdges()
         for e in info_edges:
             edge_type = str(info_edges[e].Type)
-            if edge_type not in output["getInfoEdges"].keys():
+            if edge_type not in output["getInfoEdges"].keys()\
+                    and edge_type.split(".")[-1] not in output["getEdgeMotif"].keys():
                 output["getInfoEdges"][edge_type] = list()
             output["getInfoEdges"][edge_type].append(clean_tuple(e))
 

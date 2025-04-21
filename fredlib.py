@@ -86,7 +86,7 @@ class FredGraph:
         self.rdf = rdf
 
     def __str__(self):
-        return json.dumps(self.checkFredGraph(),
+        return json.dumps(self.to_dict(),
                    indent=4,
                    default=str)
 
@@ -530,8 +530,14 @@ class FredGraph:
         else:
             return obj
 
-    def checkFredGraph(self):
+    def to_dict(self, simple=False):
         output = dict()
+
+        def clean(uri:str):
+            return clean_uri(uri) if simple else uri
+
+        def clean_tuple(t:tuple):
+            return [[clean(subj), clean(pred), clean(obj)] for subj, pred, obj in t]
 
         node_methods = [
             ("getNodes", self.getNodes),
@@ -543,19 +549,19 @@ class FredGraph:
             ("getQualityNodes", self.getQualityNodes)
         ]
         for header, func in node_methods:
-            output[header] = list(func())
+            output[header] = [clean(n) for n in func()]
 
         output["getInfoNodes"] = dict()
         infoNodes = self.getInfoNodes()
         for n in infoNodes:
-            output["getInfoNodes"][str(n)] = {
+            output["getInfoNodes"][clean(str(n))] = {
                 "type": infoNodes[n].Type,
                 "FredType": infoNodes[n].FredType,
                 "ResourceType": infoNodes[n].ResourceType
             }
 
         # Get edge triples
-        output["getEdges"] = self.getEdges()
+        output["getEdges"] = [clean_tuple(e) for e in self.getEdges()]
 
         # Edge motifs
         motifs = [
@@ -570,7 +576,7 @@ class FredGraph:
         ]
         output["getEdgeMotif"] = dict()
         for label, motif in motifs:
-            output["getEdgeMotif"][label] = self.getEdgeMotif(motif)
+            output["getEdgeMotif"][label] = [[clean(m), clean(n)] for m, n in self.getEdgeMotif(motif)]
 
         # Get info edges
         output["getInfoEdges"] = dict()
@@ -579,7 +585,7 @@ class FredGraph:
             edge_type = str(info_edges[e].Type)
             if edge_type not in output["getInfoEdges"].keys():
                 output["getInfoEdges"][edge_type] = list()
-            output["getInfoEdges"][edge_type].append(e)
+            output["getInfoEdges"][edge_type].append(clean_tuple(e))
 
         # Get path motifs
         path_motifs = [
@@ -588,7 +594,7 @@ class FredGraph:
         ]
         output["getPathMotif"] = dict()
         for label, motif in path_motifs:
-            output["getPathMotif"][label] = self.getPathMotif(motif)
+            output["getPathMotif"][label] = [[clean(m), clean(n)] for m, n in self.getPathMotif(motif)]
 
         # Get cluster motifs
         cluster_motifs = [
@@ -600,7 +606,7 @@ class FredGraph:
         for label, motif in cluster_motifs:
             output["getClusterMotif"][label] = list()
             for cluster in self.getClusterMotif(motif):
-                output["getClusterMotif"][label].append(str(cluster))
+                output["getClusterMotif"][label].append(clean(str(cluster)))
 
         # Get N-ary motifs
         nary_motifs = [
@@ -611,7 +617,7 @@ class FredGraph:
         ]
         output["getNaryMotif"] = dict()
         for label, motif in nary_motifs:
-            output["getNaryMotif"][label] = self.getNaryMotif(motif)
+            output["getNaryMotif"][label] = [clean(n) for n in self.getNaryMotif(motif)]
 
         return self.keys_to_str(output)
 

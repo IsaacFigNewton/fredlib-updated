@@ -657,8 +657,45 @@ def preprocessText(text):
 
     return nt
 
-def getFredGraph(sentence,key,filename):
-    command_to_exec = "curl -G -X GET -H \"Accept: application/rdf+xml\" -H \"Authorization: Bearer " + key + "\" --data-urlencode text=\"" + sentence+ "\" -d semantic-subgraph=\"true\" http://wit.istc.cnr.it/stlab-tools/fred > " + filename
+def getFredGraph(text:str,
+                 key:str,
+                 filename:str,
+                 prefix:str = "fred:",
+                 namespace:str = "http://www.ontologydesignpatterns.org/ont/fred/domain.owl#",
+                 wsd:bool = False,
+                 wfd:bool = False,
+                 wfd_profile:str = 'b',
+                 tense:bool = False,
+                 roles:bool = False,
+                 textannotation:str = "earmark",
+                 semantic_subgraph:bool = False,
+                 response_format:str = "application/rdf+xml"
+                 ):
+
+    # keyword validation
+    if wfd_profile not in {'b', 'd', 't'}:
+        raise KeyError(f"ERROR: Invalid wfd_profile: {wfd_profile} not in ['b', 'd', 't'].")
+    if textannotation not in {"earmark", "nif"}:
+        raise KeyError(f"ERROR: Invalid textannotation: {textannotation} not in ['earmark', 'nif'].")
+
+    valid_response_formats = {
+        "application/rdf+xml",
+        "text/turtle",
+        "application/rdf+json",
+        "text/rdf+n3",
+        "text/rdf+nt",
+        "image/png",
+    }
+    if response_format not in valid_response_formats:
+        raise KeyError(f"ERROR: Invalid response_format: {response_format} not in {valid_response_formats}.")
+
+    build_command = [
+        "curl -G -X GET",
+        f"-H \"Accept: {response_format}\"",
+        f"-H \"Authorization: Bearer {key}\""
+        f"--data-urlencode text=\"" + text + "\""
+    ]
+    command_to_exec = " ".join(build_command) + "-d semantic-subgraph=\"true\" http://wit.istc.cnr.it/stlab-tools/fred > " + filename
     try:
         os.system(command_to_exec)
     except:

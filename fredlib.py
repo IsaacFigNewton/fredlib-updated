@@ -689,15 +689,17 @@ def getFredGraph(text:str,
     if response_format not in valid_response_formats:
         raise KeyError(f"ERROR: Invalid response_format: {response_format} not in {valid_response_formats}.")
 
-    build_command = [
+    command_to_exec = [
         "curl -G -X GET",
         f"-H \"Accept: {response_format}\"",
-        f"-H \"Authorization: Bearer {key}\""
-        f"--data-urlencode text=\"" + text + "\" "
+        f"-H \"Authorization: Bearer {key}\"",
+        f"--data-urlencode text=\"" + text + "\"",
+        f"-d semantic-subgraph=\"{(str(semantic_subgraph)).lower()}\"",
+        "http://wit.istc.cnr.it/stlab-tools/fred >",
+        filename
     ]
-    command_to_exec = " ".join(build_command) + "-d semantic-subgraph=\"true\" http://wit.istc.cnr.it/stlab-tools/fred > " + filename
     try:
-        os.system(command_to_exec)
+        os.system(" ".join(command_to_exec))
     except:
         print("error os running curl FRED")
         sys.exit(1)

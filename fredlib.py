@@ -538,7 +538,7 @@ class FredGraph:
 
         def clean_tuple(t:tuple):
             if len(t) != 3:
-                raise ValueError(f"Sorry, tuple was only {len(t)} entries long")
+                raise ValueError(f"Error: expecting tuple of length 3, tuple {t} was only {len(t)} entries long")
 
             return [[clean(subj), clean(pred), clean(obj)] for subj, pred, obj in t]
 

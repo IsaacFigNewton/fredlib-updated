@@ -693,7 +693,7 @@ def getFredGraph(text:str,
         "curl -G -X GET",
         f"-H \"Accept: {response_format}\"",
         f"-H \"Authorization: Bearer {key}\""
-        f"--data-urlencode text=\"" + text + "\""
+        f"--data-urlencode text=\"" + text + "\" "
     ]
     command_to_exec = " ".join(build_command) + "-d semantic-subgraph=\"true\" http://wit.istc.cnr.it/stlab-tools/fred > " + filename
     try:

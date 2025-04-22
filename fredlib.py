@@ -361,37 +361,37 @@ class FredGraph:
 
         return clusters
 
-    def getInfoEdges(self):
-        edges = dict()
-        query = "PREFIX fred: <http://www.ontologydesignpatterns.org/ont/fred/domain.owl#> " \
-                "PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> " \
-                "PREFIX boxing: <http://www.ontologydesignpatterns.org/ont/boxer/boxing.owl#> " \
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " \
-                "PREFIX owl: <http://www.w3.org/2002/07/owl#>" \
-                "" \
-                "SELECT ?i ?p ?o ?r WHERE {" \
-                "{?i ?p ?o . ?i a ?t . ?t rdfs:subClassOf* dul:Event BIND (5 as ?r) }" \
-                "UNION" \
-                "{?i ?p ?o . FILTER(?p = owl:sameAs ) BIND (1 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-                "UNION" \
-                "{?i ?p ?o . FILTER(?p = rdf:type ) BIND (2 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-                "UNION" \
-                "{?i ?p ?o . FILTER(?p = rdfs:subClassOf ) BIND (3 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-                "UNION" \
-                "{?i ?p ?o . FILTER(?p = owl:equivalentClass ) BIND (4 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-                "UNION" \
-                "{?i ?p ?o . FILTER(?p = boxing:hasModality ) BIND (6 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-                "UNION" \
-                "{?i ?p ?o . FILTER(?p = boxing:hasTruthValue ) BIND (7 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-                "}"
-
-        res = self.rdf.query(query)
-        for el in res:
-            edges[(el[0].strip(),el[1].strip(),el[2].strip())] = FredEdge(EdgeMotif(el[3].value))
-        for e in self.getEdges():
-            if e not in edges:
-                edges[e] = FredEdge(EdgeMotif.Property)
-        return edges
+    # def getInfoEdges(self):
+    #     edges = dict()
+    #     query = "PREFIX fred: <http://www.ontologydesignpatterns.org/ont/fred/domain.owl#> " \
+    #             "PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> " \
+    #             "PREFIX boxing: <http://www.ontologydesignpatterns.org/ont/boxer/boxing.owl#> " \
+    #             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " \
+    #             "PREFIX owl: <http://www.w3.org/2002/07/owl#>" \
+    #             "" \
+    #             "SELECT ?i ?p ?o ?r WHERE {" \
+    #             "{?i ?p ?o . ?i a ?t . ?t rdfs:subClassOf* dul:Event BIND (5 as ?r) }" \
+    #             "UNION" \
+    #             "{?i ?p ?o . FILTER(?p = owl:sameAs ) BIND (1 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
+    #             "UNION" \
+    #             "{?i ?p ?o . FILTER(?p = rdf:type ) BIND (2 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
+    #             "UNION" \
+    #             "{?i ?p ?o . FILTER(?p = rdfs:subClassOf ) BIND (3 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
+    #             "UNION" \
+    #             "{?i ?p ?o . FILTER(?p = owl:equivalentClass ) BIND (4 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
+    #             "UNION" \
+    #             "{?i ?p ?o . FILTER(?p = boxing:hasModality ) BIND (6 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
+    #             "UNION" \
+    #             "{?i ?p ?o . FILTER(?p = boxing:hasTruthValue ) BIND (7 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
+    #             "}"
+    #
+    #     res = self.rdf.query(query)
+    #     for el in res:
+    #         edges[(el[0].strip(),el[1].strip(),el[2].strip())] = FredEdge(EdgeMotif(el[3].value))
+    #     for e in self.getEdges():
+    #         if e not in edges:
+    #             edges[e] = FredEdge(EdgeMotif.Property)
+    #     return edges
 
     def getNaryMotif(self,motif):
         def fillRoles(el):
@@ -530,6 +530,7 @@ class FredGraph:
         else:
             return obj
 
+
     def to_dict(self, simple=False):
         output = dict()
 
@@ -581,15 +582,18 @@ class FredGraph:
         for label, motif in motifs:
             output["getEdgeMotif"][label] = [clean_tuple(e) for e in self.getEdgeMotif(motif)]
 
-        # Get info edges
-        output["getInfoEdges"] = dict()
-        info_edges = self.getInfoEdges()
-        for e in info_edges:
-            edge_type = str(info_edges[e].Type)
-            if edge_type not in output["getInfoEdges"].keys()\
-                    and edge_type.split(".")[-1] not in output["getEdgeMotif"].keys():
-                output["getInfoEdges"][edge_type] = list()
-            output["getInfoEdges"][edge_type].append(clean_tuple(e))
+        # # Get info edges
+        # output["getInfoEdges"] = dict()
+        # info_edges = self.getInfoEdges()
+        # for e in info_edges:
+        #     edge_type = str(info_edges[e].Type)
+        #     # if the edge type isn't in the set of info edges, and it's not in the list of edge motifs
+        #     if edge_type not in output["getInfoEdges"].keys()\
+        #             and edge_type.split(".")[-1] not in output["getEdgeMotif"].keys():
+        #         output["getInfoEdges"][edge_type] = list()
+        #     # if it's been added to the list of edges
+        #     if edge_type in output["getInfoEdges"].keys():
+        #         output["getInfoEdges"][edge_type].append(clean_tuple(e))
 
         # Get path motifs
         path_motifs = [

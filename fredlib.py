@@ -739,21 +739,12 @@ def openFredGraph(filename):
 import networkx as nx
 
 def clean_uri(uri):
-    uri_str = str(uri)
+    # ex: 'http://www.ontologydesignpatterns.org/ont/fred/domain.owl#Motion_directional_1'
+    # ex: 'http://www.ontologydesignpatterns.org/ont/framenet/abox/fe/Patient.ingestion'
+    split_uri = str(uri).split("/")
+    entity_label = split_uri[-1]
+    return entity_label.replace("#", ": ")
 
-    if "#" in uri_str:
-        split_uri = uri_str.split("#")
-        cleaned_label = split_uri[-1]
-        uri_str = "#".join(split_uri[:-1])
-    else:
-        split_uri = uri_str.split("/")
-        cleaned_label = split_uri[-1]
-        uri_str = "#".join(split_uri[:-1])
-
-    split_uri = uri_str.split("/")
-    cleaned_label = f"{split_uri[-1]}: {cleaned_label}"
-
-    return cleaned_label.split(".")[-1]
 
 def get_simplified_nx_graph(g):
     simplified_g = [(clean_uri(triple[0]),

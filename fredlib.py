@@ -1,6 +1,9 @@
 import os
 import sys
+import math
 import json
+import matplotlib.pyplot as plt
+
 import rdflib
 from flufl.enum import Enum
 from rdflib import plugin
@@ -762,8 +765,6 @@ def get_simplified_nx_graph(g):
 
     return G
 
-import math
-import matplotlib.pyplot as plt
 
 def plot_graph(G, scaling=50, edge_width=1, k=2):
     # Calculate figure size based on the number of nodes
@@ -810,6 +811,26 @@ def plot_graph(G, scaling=50, edge_width=1, k=2):
 
     plt.show()
 
-# Example usage
-# if __name__ == "__main__":
-#     g = checkFredSentence('The radio said that Pippo went to France', sys.argv[1],'pippo.rdf')
+
+def get_fred_nx_digraph(text:str, path:str, fred_api_key:str):
+  fred_graph = fred.getFredGraph(
+      text=text,
+      key=fred_api_key,
+      filename=path,
+      prefix="fred:",
+      namespace="http://www.ontologydesignpatterns.org/ont/fred/domain.owl#",
+      wsd=False,
+      wfd=True,
+      wfd_profile='b',
+      tense=True,
+      roles=True,
+      textannotation="earmark",
+      semantic_subgraph=True,
+      response_format="application/rdf+xml"
+    )
+
+  # Load RDF graph
+  g = RDFGraph()
+  g.parse(path, format='xml')
+  print("rdflib Graph loaded successfully with {} triples".format(len(g)))
+  return fred.get_simplified_nx_graph(g)

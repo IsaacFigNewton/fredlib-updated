@@ -3,12 +3,12 @@ import sys
 import math
 import json
 import matplotlib.pyplot as plt
-
-import rdflib
 from flufl.enum import Enum
+import rdflib
 from rdflib import plugin
 from rdflib.serializer import Serializer
-# from rdflib.plugins.memory import IOMemory
+
+from utils import clean_uri, preprocessText
 
 __author__ = 'Misael Mongiovi, Andrea Giovanni Nuzzolese'
 
@@ -344,6 +344,7 @@ class FredGraph:
         used = set()
         olds = None
         currentset = set()
+        fillSet = None
         for el in results:
             s = el[0].strip()
             o = el[1].strip()
@@ -363,38 +364,6 @@ class FredGraph:
             clusters.append(currentset)
 
         return clusters
-
-    # def getInfoEdges(self):
-    #     edges = dict()
-    #     query = "PREFIX fred: <http://www.ontologydesignpatterns.org/ont/fred/domain.owl#> " \
-    #             "PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> " \
-    #             "PREFIX boxing: <http://www.ontologydesignpatterns.org/ont/boxer/boxing.owl#> " \
-    #             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " \
-    #             "PREFIX owl: <http://www.w3.org/2002/07/owl#>" \
-    #             "" \
-    #             "SELECT ?i ?p ?o ?r WHERE {" \
-    #             "{?i ?p ?o . ?i a ?t . ?t rdfs:subClassOf* dul:Event BIND (5 as ?r) }" \
-    #             "UNION" \
-    #             "{?i ?p ?o . FILTER(?p = owl:sameAs ) BIND (1 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-    #             "UNION" \
-    #             "{?i ?p ?o . FILTER(?p = rdf:type ) BIND (2 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-    #             "UNION" \
-    #             "{?i ?p ?o . FILTER(?p = rdfs:subClassOf ) BIND (3 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-    #             "UNION" \
-    #             "{?i ?p ?o . FILTER(?p = owl:equivalentClass ) BIND (4 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-    #             "UNION" \
-    #             "{?i ?p ?o . FILTER(?p = boxing:hasModality ) BIND (6 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-    #             "UNION" \
-    #             "{?i ?p ?o . FILTER(?p = boxing:hasTruthValue ) BIND (7 as ?r) FILTER NOT EXISTS {?i a ?t . ?t rdfs:subClassOf* dul:Event}  }" \
-    #             "}"
-    #
-    #     res = self.rdf.query(query)
-    #     for el in res:
-    #         edges[(el[0].strip(),el[1].strip(),el[2].strip())] = FredEdge(EdgeMotif(el[3].value))
-    #     for e in self.getEdges():
-    #         if e not in edges:
-    #             edges[e] = FredEdge(EdgeMotif.Property)
-    #     return edges
 
     def getNaryMotif(self,motif):
         def fillRoles(el):
@@ -585,19 +554,6 @@ class FredGraph:
         for label, motif in motifs:
             output["getEdgeMotif"][label] = [clean_tuple(e) for e in self.getEdgeMotif(motif)]
 
-        # # Get info edges
-        # output["getInfoEdges"] = dict()
-        # info_edges = self.getInfoEdges()
-        # for e in info_edges:
-        #     edge_type = str(info_edges[e].Type)
-        #     # if the edge type isn't in the set of info edges, and it's not in the list of edge motifs
-        #     if edge_type not in output["getInfoEdges"].keys()\
-        #             and edge_type.split(".")[-1] not in output["getEdgeMotif"].keys():
-        #         output["getInfoEdges"][edge_type] = list()
-        #     # if it's been added to the list of edges
-        #     if edge_type in output["getInfoEdges"].keys():
-        #         output["getInfoEdges"][edge_type].append(clean_tuple(e))
-
         # Get path motifs
         path_motifs = [
             ("Type", PathMotif.Type),
@@ -635,45 +591,6 @@ class FredGraph:
 
 # Processing Functions
 # ----------------------------------------------------------------------------------------------------------------------
-def preprocessText(text):
-    # Original text cleanup
-    nt = text.replace("-", " ").replace("#", " ").replace(chr(96), "'")
-
-    # Dictionary of replacements
-    replacements = {
-        "'nt ": " not ",
-        "'ve ": " have ",
-        " what's ": " what is ",
-        "What's ": "What is ",
-        " where's ": " where is ",
-        "Where's ": "Where is ",
-        " how's ": " how is ",
-        "How's ": "How is ",
-        " he's ": " he is ",
-        " she's ": " she is ",
-        " it's ": " it is ",
-        "He's ": "He is ",
-        "She's ": "She is ",
-        "It's ": "It is ",
-        "'d ": " had ",
-        "'ll ": " will ",
-        "'m ": " am ",
-        " ma'am ": " madam ",
-        " o'clock ": " of the clock ",
-        " 're ": " are ",
-        " y'all ": " you all "
-    }
-
-    # Apply replacements
-    for old, new in replacements.items():
-        nt = nt.replace(old, new)
-
-    nt = nt.strip()
-    if nt[len(nt)-1]!='.':
-        nt = nt + "."
-
-    return nt
-
 def getFredGraph(text:str,
                  key:str,
                  filename:str,
@@ -710,7 +627,7 @@ def getFredGraph(text:str,
         "curl -G -X GET",
         f"-H \"Accept: {response_format}\"",
         f"-H \"Authorization: Bearer {key}\"",
-        f"--data-urlencode text=\"{text}\"",
+        f"--data-urlencode text=\"{preprocessText(text)}\"",
         f"-d prefix=\"{prefix}\"",
         f"--data-urlencode namespace=\"{namespace}\"",
         f"-d wsd=\"{(str(wsd)).lower()}\"",
@@ -735,102 +652,3 @@ def openFredGraph(filename):
     rdf = rdflib.Graph()
     rdf.parse(filename)
     return FredGraph(rdf)
-
-
-# Visualization Functions
-# ----------------------------------------------------------------------------------------------------------------------
-import networkx as nx
-
-def clean_uri(uri):
-    # ex: 'http://www.ontologydesignpatterns.org/ont/fred/domain.owl#Motion_directional_1'
-    # ex: 'http://www.ontologydesignpatterns.org/ont/framenet/abox/fe/Patient.ingestion'
-    split_uri = str(uri).split("/")
-    entity_label = split_uri[-1]
-    return entity_label.replace("#", ": ")
-
-
-def get_simplified_nx_graph(g):
-    simplified_g = [(clean_uri(triple[0]),
-                     clean_uri(triple[2]),
-                     clean_uri(triple[1]))
-                    for triple in g]
-
-    for triple in simplified_g:
-        print(triple)
-
-    G = nx.DiGraph()
-
-    for source, target, relation in simplified_g:
-        G.add_edge(source, target, labels=relation)
-
-    return G
-
-
-def plot_graph(G, scaling=50, edge_width=1, k=2):
-    # Calculate figure size based on the number of nodes
-    num_nodes = len(G.nodes)
-    num_edges = len(G.edges)
-    graph_size = (num_nodes) + (2 * num_edges)
-
-    figsize = graph_size * scaling / 300
-    font_size = 2 + math.sqrt(scaling) / 5
-    # Calculate node sizes based on the length of the token text
-    node_sizes = [scaling * int(math.log2(len(node))) for node in G.nodes()]
-
-    # Position nodes using the spring layout
-    pos = nx.spring_layout(G, seed=42, k=k / num_nodes)
-    plt.figure(figsize=(figsize, figsize), dpi=300)
-
-    # Draw nodes with sizes proportional to the length of their text
-    nx.draw_networkx_nodes(G, pos, node_size=node_sizes)
-    # Draw node labels
-    nx.draw_networkx_labels(G, pos, font_size=font_size, font_family="sans-serif")
-
-
-    # Draw edges with widths based on edge weights
-    nx.draw_networkx_edges(G,
-                           pos,
-                           width=edge_width,
-                           arrows=True,
-                           arrowstyle='-|>',
-                           connectionstyle="arc3,rad=0.2")
-    # # Draw edge labels
-    edge_labels = nx.get_edge_attributes(G, "labels")
-    nx.draw_networkx_edge_labels(G,
-                                  pos,
-                                  edge_labels=edge_labels,
-                                  font_size=font_size,
-                                  label_pos=0.5,
-                                  rotate=False)
-
-    # Customize and show plot
-    ax = plt.gca()
-    ax.margins(0.08)
-    plt.axis("off")
-    plt.tight_layout()
-
-    plt.show()
-
-
-def get_fred_nx_digraph(text:str, path:str, fred_api_key:str):
-  fred_graph = fred.getFredGraph(
-      text=text,
-      key=fred_api_key,
-      filename=path,
-      prefix="fred:",
-      namespace="http://www.ontologydesignpatterns.org/ont/fred/domain.owl#",
-      wsd=False,
-      wfd=True,
-      wfd_profile='b',
-      tense=True,
-      roles=True,
-      textannotation="earmark",
-      semantic_subgraph=True,
-      response_format="application/rdf+xml"
-    )
-
-  # Load RDF graph
-  g = RDFGraph()
-  g.parse(path, format='xml')
-  print("rdflib Graph loaded successfully with {} triples".format(len(g)))
-  return fred.get_simplified_nx_graph(g)

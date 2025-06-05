@@ -8,7 +8,7 @@ import rdflib
 from rdflib import plugin
 from rdflib.serializer import Serializer
 
-from utils import clean_uri, preprocessText
+from .utils import clean_uri, preprocessText
 
 __author__ = 'Misael Mongiovi, Andrea Giovanni Nuzzolese'
 

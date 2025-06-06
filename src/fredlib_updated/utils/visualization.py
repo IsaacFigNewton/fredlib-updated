@@ -4,56 +4,6 @@ from rdflib.graph import Graph as RDFGraph
 import networkx as nx
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Processing Functions
-# ----------------------------------------------------------------------------------------------------------------------
-def preprocessText(text:str) -> str:
-    """
-    Preprocesses the input text by replacing contractions and cleaning up formatting.
-    :param text: Input text to preprocess
-    :return: Preprocessed text with contractions expanded and formatting cleaned
-    """
-    # Original text cleanup
-    nt = text.replace("-", " ")\
-                .replace("#", " ")\
-                .replace(chr(96), "'")
-
-    # Dictionary of replacements
-    replacements = {
-        "'nt ": " not ",
-        "'ve ": " have ",
-        " what's ": " what is ",
-        "What's ": "What is ",
-        " where's ": " where is ",
-        "Where's ": "Where is ",
-        " how's ": " how is ",
-        "How's ": "How is ",
-        " he's ": " he is ",
-        " she's ": " she is ",
-        " it's ": " it is ",
-        "He's ": "He is ",
-        "She's ": "She is ",
-        "It's ": "It is ",
-        "'d ": " had ",
-        "'ll ": " will ",
-        "'m ": " am ",
-        " ma'am ": " madam ",
-        " o'clock ": " of the clock ",
-        " 're ": " are ",
-        " y'all ": " you all "
-    }
-
-    # Apply replacements
-    for old, new in replacements.items():
-        nt = nt.replace(old, new)
-
-    nt = nt.strip()
-    if nt[len(nt)-1]!='.':
-        nt = nt + "."
-
-    return nt
-
-
-# ----------------------------------------------------------------------------------------------------------------------
 # Visualization Functions
 # ----------------------------------------------------------------------------------------------------------------------
 def clean_uri(uri):
@@ -79,6 +29,20 @@ def get_simplified_nx_graph(g):
         G.add_edge(source, target, labels=relation)
 
     return G
+
+
+def load_rdf_as_nx(rdf:str, format='ttl', simplify=True):
+    """
+        Load an RDF graph from a string and convert it to a simplified NetworkX graph.
+        :param rdf_str: RDF graph in string format
+        :param format: Format of the RDF graph (default is 'ttl')
+        :return: Simplified NetworkX graph
+    """
+    # Load RDF graph
+    g = RDFGraph()
+    g.parse(data=rdf, format='ttl')
+    print("rdflib Graph loaded successfully with {} triples".format(len(g)))
+    return get_simplified_nx_graph(g) if simplify else g
 
 
 def plot_graph(G, scaling=50, edge_width=1, k=2):
@@ -136,17 +100,3 @@ def plot_graph(G, scaling=50, edge_width=1, k=2):
     plt.tight_layout()
 
     plt.show()
-
-
-def load_rdf_as_nx(rdf:str, format='ttl'):
-    """
-        Load an RDF graph from a string and convert it to a simplified NetworkX graph.
-        :param rdf_str: RDF graph in string format
-        :param format: Format of the RDF graph (default is 'ttl')
-        :return: Simplified NetworkX graph
-    """
-    # Load RDF graph
-    g = RDFGraph()
-    g.parse(data=rdf, format='ttl')
-    print("rdflib Graph loaded successfully with {} triples".format(len(g)))
-    return get_simplified_nx_graph(g)

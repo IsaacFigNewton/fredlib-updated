@@ -29,8 +29,12 @@ from fredlib_updated.fredlib import (
 )
 
 # Import utility functions
-from fredlib_updated.utils import (
-    preprocessText,
+from fredlib_updated.utils.text_preprocessing import (
+    TextPreprocessor,
+)
+
+# Import visualization functions
+from fredlib_updated.utils.visualization import (
     clean_uri,
     get_simplified_nx_graph,
     plot_graph,
@@ -59,7 +63,7 @@ __all__ = [
     'openFredGraph',
     
     # Utility functions
-    'preprocessText',
+    'TextPreprocessor',
     'clean_uri',
     'get_simplified_nx_graph',
     'plot_graph',

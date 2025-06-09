@@ -7,13 +7,8 @@ FRED (Framework for RDF Extraction from Documents) Library
 A Python library for working with FRED semantic graphs and RDF data.
 """
 
-from fredlib_updated.fredlib import (
-    # Import main classes from fredlib
-    FredGraph,
-    FredNode, 
-    FredEdge,
-
-    # Import enums from fredlib
+# Import enums
+from fredlib_updated.enum import (
     FredType,
     NodeType,
     ResourceType,
@@ -22,14 +17,21 @@ from fredlib_updated.fredlib import (
     PathMotif,
     ClusterMotif,
     Role,
+)
 
-    # Import functions from fredlib
+# Import main classes
+from fredlib_updated.FredEdge import FredEdge
+from fredlib_updated.FredNode import FredNode
+from fredlib_updated.FredGraph import FredGraph
+
+# Import functions from fredlib
+from fredlib_updated.fredlib import (
     getFredGraph,
     openFredGraph,
 )
 
 # Import utility functions
-from fredlib_updated.utils.text_preprocessing import (
+from fredlib_updated.utils.TextPreprocessor import (
     TextPreprocessor,
 )
 

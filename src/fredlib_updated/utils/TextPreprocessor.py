@@ -1,10 +1,11 @@
 class TextPreprocessor:
-    def __init__(self, text=None):
-        self.text = self.preprocessText(text)
+    def __init__(self, text:str):
+        self.text = text
+        self.processed_text = None
 
-    def preprocessText(self, text):
+    def preprocess_text(self):
         # Original text cleanup
-        nt = text.replace("-", " ")\
+        new_text = self.text.replace("-", " ")\
                     .replace("#", " ")\
                     .replace(chr(96), "'")
 
@@ -35,10 +36,10 @@ class TextPreprocessor:
 
         # Apply replacements
         for old, new in replacements.items():
-            nt = nt.replace(old, new)
+            new_text = new_text.replace(old, new)
 
-        nt = nt.strip()
-        if nt[len(nt)-1]!='.':
-            nt = nt + "."
+        new_text = new_text.strip()
+        if new_text[len(new_text)-1]!='.':
+            new_text = new_text + "."
 
-        return nt
+        self.processed_text = new_text

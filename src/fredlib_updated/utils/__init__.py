@@ -1,6 +1,6 @@
 
 # Import utility functions
-from fredlib_updated.utils.text_preprocessing import (
+from fredlib_updated.utils.TextPreprocessor import (
     TextPreprocessor,
 )
 
